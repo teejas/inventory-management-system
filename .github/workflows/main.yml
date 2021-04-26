@@ -32,7 +32,7 @@ jobs:
         name: Login to DockerHub
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: tj1997
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
         name: Build and push
