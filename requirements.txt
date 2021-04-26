@@ -1,0 +1,4 @@
+redis
+falcon
+gunicorn
+requests
