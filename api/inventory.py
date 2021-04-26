@@ -33,20 +33,39 @@ class Inventory:
 
     def on_post(self, req, resp):
         try:
-            # product = req.get_param("product") or None
             body = req.media
         except AttributeError:
             self.logger.error("No data provided")
             raise falcon.HTTPBadRequest(
                 title='Missing data',
-                description='You must provide a product(s) and amount(s) in json format as follows: \
-                            `{ product: amount }`. If no known amount put 0 as a placeholder.')
+                description="You must provide an array of objects in json format as follows: \
+                            `[{ 'product-id': <String>, 'amount': <Integer>, 'order_threshold': <Integer> }]`.")
 
         for item in body:
-            self.db.set(item, body[item])
+            key = "product-" + str(item["product-id"])
+            val = {
+                'amount': item["amount"] if ("amount" in item.keys()) else 0,
+                'order_threshold': item["order_threshold"] if ("order_threshold" in item.keys()) else None
+            }
+            self.db.set(key, json.dumps(val))
 
-        resp.status = falcon.HTTP_201
+        resp.status = falcon.HTTP_204
 
+    def on_delete(self, req, resp):
+        try:
+            body = req.media
+        except AttributeError:
+            self.logger.error("No data provided")
+            raise falcon.HTTPBadRequest(
+                title='Missing data',
+                description="You must provide an array of product(s) in json format as follows: \
+                            `[{ 'product-id': <String> }]`.")
+
+        for item in body:
+            key = "product-" + str(item["product-id"])
+            self.db.delete(key)
+
+        resp.status = falcon.HTTP_204
 
 
 app = falcon.App()
